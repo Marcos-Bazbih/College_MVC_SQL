@@ -11,179 +11,115 @@ namespace College_MVC_SQL.Controllers.api
 {
     public class TeacherController : ApiController
     {
-        string connectionString = "Data Source=LENOVO-MARCOS;Initial Catalog=CollegeDb;Integrated Security=True;Pooling=False";
+        static string connectionString = "Data Source=LENOVO-MARCOS;Initial Catalog=CollegeDb;Integrated Security=True;Pooling=False";
+        DataClasses1DataContext collegeDataContext = new DataClasses1DataContext(connectionString);
 
 
 
-        // GET api/<controller>
-        //public IHttpActionResult Get()
-        //{
-        //    List<Teacher> teachersList = new List<Teacher>();
+        // GET ALL
+        public IHttpActionResult Get()
+        {
+            try
+            {
+                return Ok(collegeDataContext.Teachers.ToList());
+            }
+            catch (SqlException ex)
+            {
+                return Ok(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return Ok(ex.Message);
+            }
+        }
 
-        //    try
-        //    {
-        //        using (SqlConnection connection = new SqlConnection(connectionString))
-        //        {
-        //            connection.Open();
-        //            string query = $@"SELECT * FROM Teachers";
 
-        //            SqlCommand command = new SqlCommand(query, connection);
+        // GET BY ID
+        public IHttpActionResult Get(int id)
+        {
+            try
+            {
+                return Ok(collegeDataContext.Teachers.First((item) => item.Id == id));
+            }
+            catch (SqlException ex)
+            {
+                return Ok(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return Ok(ex.Message);
+            }
+        }
 
-        //            SqlDataReader dataFromDB = command.ExecuteReader();
 
-        //            if (dataFromDB.HasRows)
-        //            {
-        //                while (dataFromDB.Read())
-        //                {
-        //                    teachersList.Add(new Teacher(
-        //                            dataFromDB.GetString(1),
-        //                            dataFromDB.GetString(2),
-        //                            dataFromDB.GetString(3),
-        //                            dataFromDB.GetString(4),
-        //                            dataFromDB.GetInt32(5)
-        //                        ));
-        //                }
-        //                return Ok(new { teachersList });
-        //            }
-        //            connection.Close();
-        //            return Ok(new { massage = "no teachers found, sorry" });
-        //        }
-        //    }
-        //    catch (SqlException ex)
-        //    {
-        //        return Ok(ex.Message);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Ok(ex.Message);
-        //    }
-        //}
+        // POST
+        public IHttpActionResult Post([FromBody] Teacher value)
+        {
+            try
+            {
+                collegeDataContext.Teachers.InsertOnSubmit(value);
+                collegeDataContext.SubmitChanges();
+                return Ok("teacher added");
+            }
+            catch (SqlException ex)
+            {
+                return Ok(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return Ok(ex.Message);
+            }
+        }
 
-        // GET api/<controller>/5
-        //public IHttpActionResult Get(int id)
-        //{
-        //    try
-        //    {
-        //        using (SqlConnection connection = new SqlConnection(connectionString))
-        //        {
-        //            connection.Open();
 
-        //            string query = $@"SELECT * FROM Teachers WHERE Id={id}";
-        //            SqlCommand command = new SqlCommand(query, connection);
+        // PUT 
+        public IHttpActionResult Put(int id, [FromBody] Teacher value)
+        {
+            try
+            {
+                Teacher update = collegeDataContext.Teachers.First((item) => item.Id == id);
+                if (update != null)
+                {
+                    update.FirstName = value.FirstName;
+                    update.LastName = value.LastName;
+                    update.Domain = value.Domain;
+                    update.Email = value.Email;
+                    update.Salary = value.Salary;
 
-        //            SqlDataReader dataFromDB = command.ExecuteReader();
+                    collegeDataContext.SubmitChanges();
+                    return Ok("teacher updated");
+                }
+                return Ok("no teacher found");
+            }
+            catch (SqlException ex)
+            {
+                return Ok(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return Ok(ex.Message);
+            }
+        }
+        
 
-        //            if (dataFromDB.HasRows)
-        //            {
-        //                while (dataFromDB.Read())
-        //                {
-        //                    Teacher teacher1 = new Teacher(dataFromDB.GetString(1), dataFromDB.GetString(2), dataFromDB.GetString(3), dataFromDB.GetString(4), dataFromDB.GetInt32(5));
-        //                    return Ok(new { teacher1 });
-        //                }
-        //            }
-        //            connection.Close();
-        //            return Ok(new { massage = "no teachers found" });
-        //        }
-        //    }
-        //    catch (SqlException ex)
-        //    {
-        //        return Ok(ex.Message);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Ok(ex.Message);
-        //    }
-        //}
+        // DELETE 
+        public IHttpActionResult Delete(int id)
+        {
+            try
+            {
+                collegeDataContext.Teachers.DeleteOnSubmit(collegeDataContext.Teachers.First((item) => item.Id == id));
+                collegeDataContext.SubmitChanges();
 
-        // POST api/<controller>
-        //public IHttpActionResult Post([FromBody] Teacher value)
-        //{
-        //    try
-        //    {
-        //        using (SqlConnection connection = new SqlConnection(connectionString))
-        //        {
-        //            connection.Open();
-        //            string query = $@"INSERT INTO Teachers (FirstName, LastName, Domain, Email, Salary)
-        //                              VALUES('{value.firstName}', '{value.lastName}', '{value.domain}',
-        //                              '{value.email}', {value.salary})";
-
-        //            SqlCommand command = new SqlCommand(query, connection);
-        //            command.ExecuteNonQuery();
-
-        //            connection.Close();
-        //            return Ok(new { massage = "teacher added" });
-        //        }
-        //    }
-        //    catch (SqlException ex)
-        //    {
-        //        return Ok(ex.Message);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Ok(ex.Message);
-        //    }
-        //}
-
-        // PUT api/<controller>/5
-        //public IHttpActionResult Put(int id, [FromBody] Teacher value)
-        //{
-        //    try
-        //    {
-        //        using (SqlConnection connection = new SqlConnection(connectionString))
-        //        {
-        //            connection.Open();
-        //            string query = $@"UPDATE Teachers SET FirstName = '{value.firstName}',
-        //                                                 LastName = '{value.lastName}',
-        //                                                 Domain = '{value.domain}',
-        //                                                 Email = '{value.email}',
-        //                                                 Salary = {value.salary}
-        //                                             WHERE Id = {id}";
-
-        //            SqlCommand cmd = new SqlCommand(query, connection);
-        //            cmd.ExecuteNonQuery();
-
-        //            connection.Close();
-
-        //            return Ok(new { massage = "teacher updated" });
-        //        }
-        //    }
-        //    catch (SqlException ex)
-        //    {
-        //        return Ok(ex.Message);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Ok(ex.Message);
-        //    }
-        //}
-
-        // DELETE api/<controller>/5
-        //public IHttpActionResult Delete(int id)
-        //{
-        //    try
-        //    {
-        //        using (SqlConnection connection = new SqlConnection(connectionString))
-        //        {
-        //            connection.Open();
-
-        //            string query = $@"DELETE FROM Teachers WHERE Id={id}";
-
-        //            SqlCommand command = new SqlCommand(query, connection);
-        //            command.ExecuteNonQuery();
-
-        //            connection.Close();
-        //            return Ok(new { massage = "student deleted" });
-        //        }
-        //    }
-        //    catch (SqlException ex)
-        //    {
-        //        return Ok(ex.Message);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Ok(ex.Message);
-        //    }
-
-        //}
+                return Ok("teacher deleted");
+            }
+            catch (SqlException ex)
+            {
+                return Ok(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return Ok(ex.Message);
+            }
+        }
     }
 }
