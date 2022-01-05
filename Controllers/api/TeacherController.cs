@@ -51,11 +51,11 @@ namespace College_MVC_SQL.Controllers.api
             }
             catch (SqlException ex)
             {
-                return Ok(ex.Message);
+                return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
-                return Ok(ex.Message);
+                return BadRequest(ex.Message);
             }
         }
 
@@ -75,7 +75,7 @@ namespace College_MVC_SQL.Controllers.api
 
                     if (dataFromDB.HasRows)
                     {
-                        while (dataFromDB.Read())
+                        if (dataFromDB.Read())
                         {
                             Teacher teacher1 = new Teacher(dataFromDB.GetString(1), dataFromDB.GetString(2), dataFromDB.GetString(3), dataFromDB.GetString(4), dataFromDB.GetInt32(5));
                             return Ok(new { teacher1 });
